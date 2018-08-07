@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
-    console.log("connected as id " + connection.threadId);
+    // console.log("connected as id " + connection.threadId);
     listALLProducts();
 });
 
@@ -52,23 +52,47 @@ function promptForProduct() {
 }
 
 function lookupQuantity(inputName, inputQuantity) {
-    connection.query("SELECT stock_quantity FROM products WHERE item_id = ?", [inputName], function(err, data) {
+    connection.query("SELECT * FROM products WHERE item_id = ?", [inputName], function(err, data) {
         updatedQuantity = data[0].stock_quantity - inputQuantity;
-        console.log(updatedQuantity);    
+        productPrice = data[0].price;
+        // console.log(updatedQuantity + ", " + productPrice);
+        if (updatedQuantity > 0) {    
         connection.query("UPDATE products SET ? WHERE ?", [
             {stock_quantity: updatedQuantity},
             {item_id: inputName}], function(err, data) {
-            console.log(data.affectedRows + " record(s) updated ");
-            connection.query("SELECT * FROM products", function(err, data) {
-                console.log(data);
-        });
+            console.log(data.affectedRows + " record(s) updated quantity up to date");
+        //     connection.query("SELECT * FROM products", function(err, data) {
+        //         console.log(data);
+        // });
     });
-
+        totalPrice = inputQuantity * productPrice; 
+        console.log("Your Total: $" + totalPrice);
+        updateProductSales(totalPrice, inputName);
+        } else {
+            console.log("We're sorry. There's not enough product in stock.")
+            connection.end();
+        }
     });
 }
 
+function updateProductSales(totalPrice, inputName) {
+    connection.query("UPDATE products SET ? WHERE ?", [
+        {product_sales: totalPrice},
+        {item_id: inputName}], function(err, data) {
+        console.log(data.affectedRows + " record(s) updated sales up to date");
+        viewEverything();
+});
+}
+
+function viewEverything() {
+    // connection.query("SELECT * FROM products", function(err,data) {
+    // console.log(data);
+    // })
+    connection.end();
+};
 
 var products = [];
 var updatedQuantity;
-
+var productPrice;
+var totalPrice;
 
