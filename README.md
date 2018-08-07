@@ -1,6 +1,6 @@
 # bamazon
 
-The Bamazon app enables users to purchase everyday products.
+The Bamazon app enables users to purchase everyday products. Reference pictures can be found in the screenshots folder.
 
 # bamazonCustomer
 To view products available on sale, run 'node bamazonCustomer.js'. This will display the products on your console, as shown in customer1.png.
